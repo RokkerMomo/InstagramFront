@@ -1,13 +1,57 @@
-import { StyleSheet, Text, View,Image } from 'react-native'
+import { StyleSheet, Text, View,Image,Alert } from 'react-native'
 import React, { useState } from 'react'
 import { Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native'
+import env from "../env";
 
 const Login = ({ navigation }) => {
 
   const [User,onChangeUser] = useState('');
   const [Pass,onChangePass] = useState('');
+
+  msg=""
+
+  const createTwoButtonAlert = () =>
+    Alert.alert('Alerta!', `${msg}`, [
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
+
+  const SignIn = async () =>{
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        usuario:`${User}`,
+        password:`${Pass}`,
+      })}
+      await fetch(`${env.SERVER.URI}/signIn`,requestOptions)
+      .then(res =>{
+        console.log(res.status);
+        if (res.status=="400"){
+          msg="error";
+        }else{}
+        return res.json();
+      }).then(
+        (result) =>{
+          console.log(result)
+          if (msg=="error") {
+            msg=result.msg
+          createTwoButtonAlert();
+          }else{
+            navigation.navigate('Tabs', {
+              screen: 'Tabs',
+              params: { 
+                token:result.token,
+                userid:result.user._id,},
+            });
+          }
+        }
+      )
+  }
 
 
   return (
@@ -37,7 +81,7 @@ const Login = ({ navigation }) => {
         secureTextEntry={true}
       />
 
-        <Pressable onPress={() => navigation.navigate('Tabs')} style={styles.LogIn}><Text style={styles.LogInText}>Log In</Text></Pressable>
+        <Pressable onPress={() =>SignIn()} style={styles.LogIn}><Text style={styles.LogInText}>Log In</Text></Pressable>
 
         <View style={styles.letters}>
         <Text>Don't have an account ? </Text>

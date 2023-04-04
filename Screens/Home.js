@@ -1,22 +1,43 @@
-import { StyleSheet, Text, View,Image,ScrollView,Alert } from 'react-native'
+import { StyleSheet, Text, View,Image,ScrollView,Alert, Pressable } from 'react-native'
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FlatList } from 'react-native';
 import {Dimensions} from 'react-native';
-
+import env from "../env";
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
-const Home = ({ navigation }) => {
+const Home = ({route,navigation}) => {
 
   const [text, setText] = useState('');
-  const hasUnsavedChanges = Boolean(true);
+  const [posts,setposts] = useState(null)
 
+  const hasUnsavedChanges = Boolean(true);
+  const {userid,Token} = route.params;
   
+  getPosts= async()=>{
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+      })}
+      await fetch(`${env.SERVER.URI}/showAllPosts`,requestOptions)
+      .then((response) => response.json()).
+      then((result) =>{
+          console.log(result)
+          setposts(result)
+        }
+      ) 
+  }
 
   useEffect(
-    () =>
+  
+     () =>{
       navigation.addListener('beforeRemove', (e) => {
         if (!hasUnsavedChanges) {
           // If we don't have unsaved changes, then we don't need to do anything
@@ -41,9 +62,11 @@ const Home = ({ navigation }) => {
             },
           ]
         );
-      }),
-    [navigation, hasUnsavedChanges]
-  );
+      })
+    //aqui
+    getPosts();
+    },
+[navigation, hasUnsavedChanges]);
 
 
   const [images, setimages] = useState([
@@ -60,7 +83,7 @@ const Home = ({ navigation }) => {
           }}
           style={{width: '45%', height:'100%' }}
         />
-        <Ionicons style={{marginLeft:'45%'}} name="add-circle-outline" size={30} color="black" />
+        
       </View>
       <ScrollView>
 
@@ -72,13 +95,16 @@ const Home = ({ navigation }) => {
     <Text style={styles.TextMyStory}>Your Story</Text>
   </View>
 </View>
-
-<View style={styles.post}>
+{posts&&posts.map((post)=>{
+  // const fecha = Tweet.fecha.slice(0, 10);
+  return(
+    <View key={post._id}>
+      <View style={styles.post}>
 <View style={styles.postHeader}>
   <View style={styles.postavatar}>
-    <Image style={styles.avatarimg} source={require('../assets/avatarsample.png')} />
+    <Image style={styles.avatarimg} source={{uri:`${post.fotoperfil}`}} />
     </View>
-    <Text style={styles.postheaderText}>Username</Text>
+    <Text style={styles.postheaderText}>{post.owneruser}</Text>
   </View>
 </View>
 
@@ -97,9 +123,6 @@ const Home = ({ navigation }) => {
   />
 
 <View style={styles.post}>  
- 
-
-
   <View style={styles.postContenido}>
     <View style={styles.postButtons}>
     <Ionicons style={{marginLeft:11}} name="heart-outline" size={24} color="black" />
@@ -108,11 +131,15 @@ const Home = ({ navigation }) => {
     <Ionicons style={{marginLeft:220}} name="bookmark-outline" size={24} color="black" />
     </View>
     <Text style={styles.postheaderText} >9,785 likes</Text>
-    <Text style={{fontSize:12,marginLeft:10}}><Text style={styles.postheaderText}>RokkerMomo</Text> Aqui iria la descripcion del post y seria habria que ponerle un limite de caracteres para que los post no se alargen mucho y se vea todo bonito, ademas de que la descripcion va justo despues del nombre.</Text>
+    <Text style={{fontSize:12,marginLeft:10,width:'90%'}}><Text style={styles.postheaderText}>{post.owneruser}</Text> {post.descripcion}</Text>
 
   </View>
 
 </View>
+    </View>
+  )
+})}
+
 
 </ScrollView>
     </SafeAreaView>

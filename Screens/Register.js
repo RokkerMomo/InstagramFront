@@ -1,15 +1,64 @@
-import { StyleSheet, Text, View,Image } from 'react-native'
+import { StyleSheet, Text, View,Image,Alert } from 'react-native'
 import React, { useState } from 'react'
 import { Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native'
-
+import env from "../env";
 const Register = ({navigation}) => {
     const [Name,onChangeName] = useState('');
     const [User,onChangeUser] = useState('');
     const [Bio,onChangeBio] = useState('');
     const [Pass,onChangePass] = useState('');
+
+    msg=""
+
+    const createTwoButtonAlert = () =>
+    Alert.alert('Alerta!', `${msg}`, [
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
+
+    const succsess = () =>
+    Alert.alert('Alerta!', `${msg}`, [
+      {text: 'OK', onPress: () => navigation.navigate('Login')},
+    ]);
+
+    const SignUp = async () =>{
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fullname:`${Name}`,
+          usuario:`${User}`,
+          password:`${Pass}`,
+          foto:'https://firebasestorage.googleapis.com/v0/b/movilestwitter-395ad.appspot.com/o/pngegg.png?alt=media&token=3d924671-2f05-4949-92ae-d722d5b51049',
+          bio:`${Bio}`
+        })}
+        await fetch(`${env.SERVER.URI}/signup`,requestOptions)
+      .then(res =>{
+        console.log(res.status);
+        if (res.status=="400"){
+          msg="error";
+        }else{}
+        return res.json();
+      }).then(
+        (result) =>{
+          console.log(result)
+          if (msg=="error") {
+            msg=result.msg
+          createTwoButtonAlert();
+          }else{
+            msg='registrado con exito'
+            succsess();
+            console.log(result);
+          }
+        }
+      )
+
+    }
 
   return (
 
@@ -52,7 +101,7 @@ editable
 placeholder="biography (optional)"
 />
 
-<Pressable style={styles.LogIn}><Text style={styles.LogInText}>Create Account</Text></Pressable>
+<Pressable onPress={()=>{SignUp()}} style={styles.LogIn}><Text style={styles.LogInText}>Create Account</Text></Pressable>
 
 
 

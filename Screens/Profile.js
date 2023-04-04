@@ -1,11 +1,53 @@
 import { StyleSheet, Text, View,Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native'
+import env from "../env";
+const Profile = ({route,navigation}) => {
 
-const Profile = () => {
+  const [fotoperfil,setfotoperfil] = useState(null)
+  const [fullname,setfullname] = useState('')
+  const [username,setusername] = useState('')
+  const [bio,setbio] = useState('')
+  const [postsnumber,setpostnumber] = useState(0);
+  const [followers,setfollowers] = useState(0);
+  const [following,setfollowing] = useState(0);
+  const {userid,Token} = route.params;
+
+
+  GetData = async ()=>{
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        _id:`${userid}`
+      })}
+      await fetch(`${env.SERVER.URI}/finduser`,requestOptions)
+      .then(res =>{
+        console.log(res.status);
+        if (res.status=="400"){
+        }else{}
+        return res.json();
+      }).then(
+        (result) =>{
+         setfullname(result.fullname)
+         setbio(result.bio)
+         setusername(result.usuario)
+         setfotoperfil(result.foto)
+        }
+      )
+  }
+
+useEffect(()=>{
+ GetData();
+    
+},[])
 
 
   return (
@@ -16,17 +58,17 @@ const Profile = () => {
     <View style={styles.profilediv}>
 
     <View style={styles.avatar}>
-    <Image style={styles.avatarimg} source={require('../assets/avatarsample.png')} />
+    <Image style={styles.avatarimg} source={{uri:`${fotoperfil&&fotoperfil}`}} />
     </View>
 
     <View style={styles.userdiv}>
-    <Text style={styles.username}>RokkerMomo</Text>
+    <Text style={styles.username}>{username&&username}</Text>
     <Pressable style={styles.editprofile} ><Text>Edit Profile</Text></Pressable>
     </View>
 
     <View style={styles.profilefooter}>
-    <Text style={styles.profilename}>Fernando Parra</Text>
-    <Text>I copy and paste stack overflow code</Text>
+    <Text style={styles.profilename}>{fullname&&fullname}</Text>
+    <Text>{bio&&bio}</Text>
     </View>
    
         </View>
@@ -34,17 +76,17 @@ const Profile = () => {
         <View style={styles.pff}>
 
           <View style={styles.buttons}>
-            <Text style={{fontWeight:'bold'}}>225</Text>
+            <Text style={{fontWeight:'bold'}}>{postsnumber&&postsnumber}</Text>
             <Text>Posts</Text>
           </View>
           
           <View style={styles.buttons}>
-            <Text style={{fontWeight:'bold'}}>1.5k</Text>
+            <Text style={{fontWeight:'bold'}}>{followers&&followers}</Text>
             <Text>Followers</Text>
           </View>
 
           <View style={styles.buttons}>
-            <Text style={{fontWeight:'bold'}}>123</Text>
+            <Text style={{fontWeight:'bold'}}>{following&&following}</Text>
             <Text>Following</Text>
           </View>
 
