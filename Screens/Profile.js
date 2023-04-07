@@ -5,6 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native'
 import env from "../env";
+import Spinner from 'react-native-loading-spinner-overlay';
+import Img from "./Img";
+
+
 const Profile = ({route,navigation}) => {
 
   const [fotoperfil,setfotoperfil] = useState(null)
@@ -15,6 +19,31 @@ const Profile = ({route,navigation}) => {
   const [followers,setfollowers] = useState(0);
   const [following,setfollowing] = useState(0);
   const {userid,Token} = route.params;
+  const [cargando,setcargando] =useState(false)
+  const [posts,setposts] = useState(null)
+
+  getPosts= async()=>{
+    setcargando(true)
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        owner:`${userid}`
+      })}
+      await fetch(`${env.SERVER.URI}/showuserposts`,requestOptions)
+      .then((response) => response.json()).
+      then((result) =>{
+          // console.log(result)
+          setposts(result['posts'])
+          setpostnumber(result['posts'].length)
+          setcargando(false)
+        }
+      ) 
+  }
 
 
   GetData = async ()=>{
@@ -46,6 +75,7 @@ const Profile = ({route,navigation}) => {
 
 useEffect(()=>{
  GetData();
+ getPosts();
     
 },[])
 
@@ -54,6 +84,12 @@ useEffect(()=>{
     <ScrollView style={{height:'100%',backgroundColor:'white'}}>
 
     <View style={styles.body}>
+
+    <Spinner
+          visible={cargando}
+          textContent={'Loading...'}
+          textStyle={{color:'white'}}
+        />
       
     <View style={styles.profilediv}>
 
@@ -92,79 +128,18 @@ useEffect(()=>{
 
         </View>
 
+
+
         <View style={styles.posts}>
+        {posts&&posts.map((post)=>{
+  // const fecha = Tweet.fecha.slice(0, 10);
 
-        <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
+  return(
+      <Img key={post._id} id={post._id} Token={Token}></Img>
+    )
+})}
 
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
-
-    <View style={styles.post}>
-    <Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-    </View>
+        
 
         </View>
 

@@ -1,15 +1,76 @@
 import { StyleSheet, Text, View,Image } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
+import Img from "./Img";
+import env from "../env";
 
-
-const Login = () => {
-
+const Login = ({route,navigation}) => {
   const [search,onchangeSearch] = useState('')
+  const [fotoperfil,setfotoperfil] = useState(null)
+  const [fullname,setfullname] = useState('')
+  const [username,setusername] = useState('')
+  const [bio,setbio] = useState('')
+  const [postsnumber,setpostnumber] = useState(0);
+  const [followers,setfollowers] = useState(0);
+  const [following,setfollowing] = useState(0);
+  const {userid,Token} = route.params;
+  const [cargando,setcargando] =useState(false)
+  const [posts,setposts] = useState(null)
+
+  searching = async () =>{
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        descripcion:`${search}`
+      })}
+  await fetch(`${env.SERVER.URI}/searchpost`,requestOptions)
+  .then((response) => response.json())
+  .then((result) =>{
+    setposts(result['Posts'])
+    console.log(result)
+  } );
+  }
+
+  getPosts= async()=>{
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        owner:`${userid}`
+      })}
+      await fetch(`${env.SERVER.URI}/showAllPosts`,requestOptions)
+      .then((response) => response.json()).
+      then((result) =>{
+          // console.log(result)
+          setposts(result)
+          setcargando(false)
+          console.log(result)
+        }
+      ) 
+  }
+
+  useEffect(()=>{
+    getPosts();
+  },[])
+
+
+  useEffect (()=>{
+    searching();
+  },[search])
+
 
   return (
     <SafeAreaView>
@@ -33,81 +94,18 @@ placeholder="Search"
   
   
 
-    <View style={styles.posts}>
+  <View style={styles.posts}>
+        {posts&&posts.map((post)=>{
+  // const fecha = Tweet.fecha.slice(0, 10);
 
-    <View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
+  return(
+      <Img key={post._id} id={post._id} Token={Token}></Img>
+    )
+})}
 
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
+        
 
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-<View style={styles.post}>
-<Image style={styles.postimg} source={require('../assets/avatarsample.png')} />
-</View>
-
-    </View>
+        </View>
 
 
 

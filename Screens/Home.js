@@ -4,7 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FlatList } from 'react-native';
 import {Dimensions} from 'react-native';
+import Imgs from "../Screens/imgs";
 import env from "../env";
+import Likes from "./Likes";
+import Heart from "./heart";
+import Spinner from 'react-native-loading-spinner-overlay';
+
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -12,11 +17,13 @@ const Home = ({route,navigation}) => {
 
   const [text, setText] = useState('');
   const [posts,setposts] = useState(null)
-
+  const [cargando,setcargando] =useState(false)
   const hasUnsavedChanges = Boolean(true);
   const {userid,Token} = route.params;
+
   
   getPosts= async()=>{
+    setcargando(true)
     const requestOptions = {
       method: 'POST',
       headers: {
@@ -29,11 +36,17 @@ const Home = ({route,navigation}) => {
       await fetch(`${env.SERVER.URI}/showAllPosts`,requestOptions)
       .then((response) => response.json()).
       then((result) =>{
-          console.log(result)
+          // console.log(result)
           setposts(result)
+          setcargando(false)
+
         }
       ) 
   }
+
+  useEffect(()=>{
+    getPosts();
+  },[])
 
   useEffect(
   
@@ -62,17 +75,10 @@ const Home = ({route,navigation}) => {
             },
           ]
         );
-      })
-    //aqui
-    getPosts();
+      })    
     },
 [navigation, hasUnsavedChanges]);
 
-
-  const [images, setimages] = useState([
-    require('../assets/sample.jpg'),
-    require('../assets/avatarsample.png'),
-  ]);
 
   return (
     <SafeAreaView style={{marginBottom:50}}>
@@ -95,8 +101,16 @@ const Home = ({route,navigation}) => {
     <Text style={styles.TextMyStory}>Your Story</Text>
   </View>
 </View>
+
+<Spinner
+          visible={cargando}
+          textContent={'Loading...'}
+          textStyle={{color:'white'}}
+        />
+
 {posts&&posts.map((post)=>{
   // const fecha = Tweet.fecha.slice(0, 10);
+
   return(
     <View key={post._id}>
       <View style={styles.post}>
@@ -108,29 +122,14 @@ const Home = ({route,navigation}) => {
   </View>
 </View>
 
-<FlatList
-    
-    data={images}
-    horizontal
-    pagingEnabled
-    snapToAlignment="center"
-    nestedScrollEnabled
-    renderItem={ ({ item}) => (
-      <View style={styles.postimgcontainer}> 
-    <Image style={styles.postimg} source={item}/>
-    </View>
-    )}
-  />
+<Imgs id={post._id} Token={Token}></Imgs>
 
 <View style={styles.post}>  
   <View style={styles.postContenido}>
     <View style={styles.postButtons}>
-    <Ionicons style={{marginLeft:11}} name="heart-outline" size={24} color="black" />
-    <Ionicons style={{marginLeft:11}} name="chatbubble-outline" size={24} color="black" />
-    <Ionicons style={{marginLeft:11}} name="paper-plane-outline" size={24} color="black" />
-    <Ionicons style={{marginLeft:220}} name="bookmark-outline" size={24} color="black" />
+      <Heart id={post._id} token={Token} userid={userid} ></Heart>
+    <Ionicons style={{marginLeft:11,marginTop:5}} name="chatbubble-outline" size={24} color="black" />
     </View>
-    <Text style={styles.postheaderText} >9,785 likes</Text>
     <Text style={{fontSize:12,marginLeft:10,width:'90%'}}><Text style={styles.postheaderText}>{post.owneruser}</Text> {post.descripcion}</Text>
 
   </View>
@@ -229,7 +228,10 @@ const styles = StyleSheet.create({
       width:windowWidth,
       flexWrap:'wrap',
       flexDirection:'row',
-      backgroundColor:'white'
+      backgroundColor:'white',
+      borderBottomColor:'rgba(219, 219, 219, 1)',
+      borderBottomWidth:1,
+      paddingBottom:5
     },
     postimgcontainer:{
       width:windowWidth,
@@ -246,8 +248,6 @@ const styles = StyleSheet.create({
       backgroundColor:'white',
       flexWrap:'wrap',
       flexDirection:'row',
-      alignContent:'center',
-      alignItems:'center',
     }
 
 })

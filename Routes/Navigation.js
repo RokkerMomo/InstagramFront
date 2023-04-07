@@ -19,6 +19,9 @@ const Navigation = ({route, navigation}) => {
   return (
       <Tab.Navigator screenOptions={{tabBarShowLabel:false}}>
 
+
+
+         {/* Home */}
         <Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
          unmountOnBlur:true,
           headerShown:false,
@@ -29,9 +32,13 @@ const Navigation = ({route, navigation}) => {
           color={focused ? 'black' : '#ccc'}
        />
     )}} name="Home" component={Home} />
+    {/* Home */}
+
+    
 
 
-        <Tab.Screen options={{headerShown:false,
+    {/* search */}
+        <Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{headerShown:false,
          tabBarIcon: ({focused, size}) => (
        <Ionicons
           name="search"
@@ -39,13 +46,23 @@ const Navigation = ({route, navigation}) => {
           color={focused ? 'black' : '#ccc'}
        />
     )}} name="Search" component={Search} />
+    {/* search */}
 
+
+
+
+{/* NewPost */}
 <Tab.Screen  initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{unmountOnBlur:true,
 headerShown:false,
  tabBarIcon: ({focused, size}) => (
        <Octicons name="diff-added" size={size} color={focused ? 'black' : '#ccc'} />
     )}} name="NewPost" component={NewPost} />
+    {/* NewPost */}
 
+
+
+
+{/* Messages */}
 <Tab.Screen options={{tabBarIcon: ({focused, size}) => (
        <Ionicons
           name="paper-plane"
@@ -53,7 +70,12 @@ headerShown:false,
           color={focused ? 'black' : '#ccc'}
        />
     )}} name="Messages" component={Messages} />
+{/* Messages */}
 
+
+
+
+{/* Profile */}
 <Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{tabBarIcon: ({focused, size}) => (
        <Ionicons
           name="person"
@@ -61,8 +83,7 @@ headerShown:false,
           color={focused ? 'black' : '#ccc'}
        />
     )}} name="Profile" component={Profile} />
-
-
+{/* Profile */}
 
     
 

@@ -181,7 +181,7 @@ const NewPost = ({route,navigation}) => {
       <Spinner
           visible={cargando}
           textContent={'Loading...'}
-          textStyle={styles.spinnerTextStyle}
+          textStyle={{color:'white'}}
         />
 
       
@@ -193,8 +193,17 @@ const NewPost = ({route,navigation}) => {
           </Pressable>
 
         <TextInput multiline={true} style={styles.input} onChangeText={setdescipcion} value={descripcion} placeholder='Escribe una descripccion'></TextInput>
+        
         </View>
-
+        <View style={styles.dotscontainer}>
+  {imagenes&&imagenes.map((punto)=>{
+    return(
+      <View key={punto._id} style={styles.dot}></View>
+    
+    )
+    
+  })}
+  </View>
         <FlatList
     
     data={imagenes}
@@ -207,8 +216,12 @@ const NewPost = ({route,navigation}) => {
     </View>
     )}
   />
+  
+
+
 
       </View>
+      
     </SafeAreaView>
     
   );
@@ -268,4 +281,24 @@ const styles = StyleSheet.create({
       flexWrap:'wrap',
       flexDirection:'row'
     },
+    dot:{
+      height:10,
+      width:10,
+      borderRadius:10,
+      backgroundColor:'rgba(60, 60, 60, 0.7)',
+      marginRight:'2%',
+      marginTop:5,
+      marginBottom:5
+    },
+    containter:{
+      flexWrap:'wrap',
+      backgroundColor:'blue',
+    },
+    dotscontainer:{
+      width:windowWidth,
+      flexWrap:"wrap",
+      flexDirection:'row',
+      justifyContent:'center',
+      position:'relative',
+    }
 })
