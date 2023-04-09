@@ -9,14 +9,11 @@ const heart = ({id,userid,token}) => {
 
     const [numero,setnumero] = useState(0)
     const [check,SetCheck] = useState(false)
+    const[cargando,setcargando] = useState(false)
 
-    const darLike = ()=>{
-
-        if (check==true) {
-          SetCheck(false)
-        }else{
-          SetCheck(true)
-        }
+    const darLike = async()=>{
+      setcargando(true)
+       
   
         const requestOptions = {
           method: 'POST',
@@ -30,7 +27,14 @@ const heart = ({id,userid,token}) => {
             idUsuario:`${userid}`
           })}
             //axios
-            fetch(`${env.SERVER.URI}/like`,requestOptions)
+            if(cargando==false){
+
+              if (check==true) {
+                SetCheck(false)
+              }else{
+                SetCheck(true)
+              }
+              await fetch(`${env.SERVER.URI}/like`,requestOptions)
             .then(res =>{
               if (res.status=="400"){
                 msg="error";
@@ -39,12 +43,22 @@ const heart = ({id,userid,token}) => {
             }).then(
               (result) =>{
               if (result.msg=="Se dio like") {
-                setnumero(numero+1)
+
+                  setnumero(numero+1)
+
+                
               }else{
-                setnumero(numero-1)
+   
+                  setnumero(numero-1)
+             
+                
               }
+              setcargando(false)
               }
             )
+            }
+
+            
       }
 
 
@@ -75,14 +89,36 @@ const heart = ({id,userid,token}) => {
              }
            }
          )
+         const requestOptions2 = {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization':`Bearer ${token}`
+          },
+          body: JSON.stringify({
+            id:`${id}`
+          })}
+          fetch(`${env.SERVER.URI}/getlikes`,requestOptions2)
+            .then(res =>{
+              if (res.status=="400"){
+                msg="error";
+              }else{}
+              return res.json();
+            }).then(
+              (result) =>{
+              setnumero(result)
+              }
+            )
     },[])
 
-  return (<View>
-     <Pressable onPress={()=>{darLike()}} style={{marginLeft:11,marginTop:5}}>
+  return (<View style={styles.heart}>
+     <Pressable onPress={()=>{darLike()}} style={{marginTop:5}}>
     {(check==false)&&<Ionicons  name="heart-outline" size={24} color="black" />}
     {(check==true)&&<Ionicons name="heart" size={24} color="red" />}
     </Pressable>
-    <Likes id={id} token={token}></Likes>
+    <Text style={styles.postheaderText}>{numero} likes</Text>
+    {/* <Likes id={id} token={token}></Likes> */}
   </View>
    
   )
@@ -90,4 +126,16 @@ const heart = ({id,userid,token}) => {
 
 export default heart
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  heart:{
+    justifyContent:'center',
+    alignContent:'center',
+    alignItems:'center',
+    marginLeft:11
+  },
+  postheaderText:{
+    fontSize:12,
+    fontWeight:'bold',
+    marginTop:5
+  },
+})

@@ -29,7 +29,7 @@ const Likes = ({id,token}) => {
                 setnumero(result)
                 }
               )
-    })
+    },[])
 
   return (
     <Text style={styles.postheaderText}>{numero} likes</Text>
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
     postheaderText:{
         fontSize:12,
         fontWeight:'bold',
-        marginLeft:10,
         marginTop:5
       },
 })

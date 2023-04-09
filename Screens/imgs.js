@@ -42,7 +42,7 @@ const imgs = ({id,Token}) => {
  
 
   return (
-    <View>
+    <View key={id}>
       <FlatList
     
     data={imagenes}
@@ -52,14 +52,8 @@ const imgs = ({id,Token}) => {
     nestedScrollEnabled
     showsHorizontalScrollIndicator={false}
     renderItem={ ({ item}) => (
-      <View style={styles.postimgcontainer}> 
-    <Image style={styles.postimg} source={{uri:`${item}`}}/>
-    
-    {/* {item&&item.map((item)=>{
-     return(
-      <View style={styles.dot}></View>
-     )
-    })} */}
+      <View  style={styles.postimgcontainer}> 
+    <Image key={item._id} style={styles.postimg} source={{uri:`${item}`}}/>
     </View>
     )}
   />

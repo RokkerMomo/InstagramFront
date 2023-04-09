@@ -1,8 +1,9 @@
-import { StyleSheet, Text, View,Image,ScrollView,Alert, Pressable } from 'react-native'
+import { StyleSheet, Text, View,Image,ScrollView,Alert, Pressable,BackHandler } from 'react-native'
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FlatList } from 'react-native';
+import { Octicons } from '@expo/vector-icons';
 import {Dimensions} from 'react-native';
 import Imgs from "../Screens/imgs";
 import env from "../env";
@@ -32,52 +33,38 @@ const Home = ({route,navigation}) => {
         'Authorization':`Bearer ${Token}`
       },
       body: JSON.stringify({
+        userid:`${userid}`
       })}
-      await fetch(`${env.SERVER.URI}/showAllPosts`,requestOptions)
-      .then((response) => response.json()).
-      then((result) =>{
-          // console.log(result)
-          setposts(result)
-          setcargando(false)
-
-        }
-      ) 
+  await fetch(`${env.SERVER.URI}/showfollowing`,requestOptions)
+  .then((response) => response.json())
+  .then((data) =>{
+    setposts(data)
+    setcargando(false)
+  } );
   }
+
+  useEffect(
+  
+    () =>{
+     navigation.addListener('beforeRemove', (e) => {
+       if (!hasUnsavedChanges) {
+         // If we don't have unsaved changes, then we don't need to do anything
+         return;
+       }
+
+       // Prevent default behavior of leaving the screen
+       e.preventDefault();
+
+       BackHandler.exitApp();
+     })    
+   },
+[navigation, hasUnsavedChanges]);
 
   useEffect(()=>{
     getPosts();
   },[])
 
-  useEffect(
   
-     () =>{
-      navigation.addListener('beforeRemove', (e) => {
-        if (!hasUnsavedChanges) {
-          // If we don't have unsaved changes, then we don't need to do anything
-          return;
-        }
-
-        // Prevent default behavior of leaving the screen
-        e.preventDefault();
-
-        // Prompt the user before leaving the screen
-        Alert.alert(
-          'Cerrar Sesion?',
-          'Quieres volver a la pantalla de inicio y cerrar tu sesion ?',
-          [
-            { text: "No Salir", style: 'cancel', onPress: () => {} },
-            {
-              text: 'Salir',
-              style: 'destructive',
-              // If the user confirmed, then we dispatch the action we blocked earlier
-              // This will continue the action that had triggered the removal of the screen
-              onPress: () => navigation.dispatch(e.data.action),
-            },
-          ]
-        );
-      })    
-    },
-[navigation, hasUnsavedChanges]);
 
 
   return (
@@ -108,6 +95,20 @@ const Home = ({route,navigation}) => {
           textStyle={{color:'white'}}
         />
 
+{(posts&&posts.length==0)&&
+          <View style={styles.noposts}>
+            <Ionicons name="home" size={50} color="black" />
+            <Text style={{fontSize:20,fontWeight:'bold'}}>Home</Text>
+            <Text style={{color:'rgba(60, 60, 60, 1)'}}>Here you'll be shown the posts of the users you follow</Text>
+            <Text style={{color:'rgba(60, 60, 60, 1)'}}>You dont follow anyone yet</Text>
+            <Text onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'Search',
+              params: { 
+                token:Token,
+                userid:userid,},
+            });}} style={{color:'rgba(0, 149, 246, 1)'}}>Search for users to follow</Text>
+            </View>}
+
 {posts&&posts.map((post)=>{
   // const fecha = Tweet.fecha.slice(0, 10);
 
@@ -115,10 +116,22 @@ const Home = ({route,navigation}) => {
     <View key={post._id}>
       <View style={styles.post}>
 <View style={styles.postHeader}>
-  <View style={styles.postavatar}>
+  <Pressable onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'Profile',
+              params: { 
+                token:Token,
+                userid:userid,
+                profileid:post.owner,},
+            });}} style={styles.postavatar}>
     <Image style={styles.avatarimg} source={{uri:`${post.fotoperfil}`}} />
-    </View>
-    <Text style={styles.postheaderText}>{post.owneruser}</Text>
+    </Pressable>
+    <Text onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'Profile',
+              params: { 
+                token:Token,
+                userid:userid,
+                profileid:post.owner,},
+            });}} style={styles.postheaderText}>{post.owneruser}</Text>
   </View>
 </View>
 
@@ -128,7 +141,14 @@ const Home = ({route,navigation}) => {
   <View style={styles.postContenido}>
     <View style={styles.postButtons}>
       <Heart id={post._id} token={Token} userid={userid} ></Heart>
-    <Ionicons style={{marginLeft:11,marginTop:5}} name="chatbubble-outline" size={24} color="black" />
+      <Pressable onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'Comments',
+              params: { 
+                token:Token,
+                userid:userid,
+                Postid:post._id,},
+            });}}><Ionicons style={{marginLeft:11,marginTop:5}} name="chatbubble-outline" size={24} color="black" /></Pressable>
+    
     </View>
     <Text style={{fontSize:12,marginLeft:10,width:'90%'}}><Text style={styles.postheaderText}>{post.owneruser}</Text> {post.descripcion}</Text>
 
@@ -248,6 +268,14 @@ const styles = StyleSheet.create({
       backgroundColor:'white',
       flexWrap:'wrap',
       flexDirection:'row',
+    },
+    noposts:{
+      width:windowWidth,
+      height:windowHeight/1.2,
+      justifyContent:'center',
+      alignItems:'center',
+      alignContent:'center',
+      backgroundColor:'white',
     }
 
 })

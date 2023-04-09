@@ -4,10 +4,14 @@ import { Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native'
+import {Dimensions} from 'react-native';
 import env from "../env";
 import Spinner from 'react-native-loading-spinner-overlay';
 import Img from "./Img";
+import { Octicons } from '@expo/vector-icons';
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 const Profile = ({route,navigation}) => {
 
@@ -18,9 +22,126 @@ const Profile = ({route,navigation}) => {
   const [postsnumber,setpostnumber] = useState(0);
   const [followers,setfollowers] = useState(0);
   const [following,setfollowing] = useState(0);
-  const {userid,Token} = route.params;
+  const {userid,profileid,Token} = route.params;
   const [cargando,setcargando] =useState(false)
+  const [check,SetCheck] = useState(null)
   const [posts,setposts] = useState(null)
+
+  async function GetFollowers() {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        idSeguido:`${profileid}`
+      })}
+    // Similar to componentDidMount and componentDidUpdate:
+    fetch(`${env.SERVER.URI}/getfollowers`,requestOptions)
+    .then(res =>{
+      if (res.status=="400"){
+      }else{}
+      return res.json();
+    }).then(
+      (result) =>{
+        setfollowers(result)
+      }
+    )
+  }
+
+  async function GetFollowing() {
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        idSeguidor:`${profileid}`
+      })}
+    // Similar to componentDidMount and componentDidUpdate:
+    fetch(`${env.SERVER.URI}/getFollowing`,requestOptions)
+    .then(res =>{
+      if (res.status=="400"){
+      }else{}
+      return res.json();
+    }).then(
+      (result) =>{
+        setfollowing(result)
+      }
+    )
+  }
+
+  async function CheckFollow(){
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+    idSeguido:`${profileid}`,
+    idSeguidor:`${userid}`
+      })}
+    await fetch(`${env.SERVER.URI}/checkfollow`,requestOptions)
+   .then(res =>{
+     if (res.status=="400"){
+     }else{}
+     return res.json();
+   }).then(
+     (result) =>{
+       if (result.status=='true') {
+        SetCheck(true)
+       }else{
+        SetCheck(false)
+       }
+     }
+   )
+  }
+
+  async function Follow(){
+
+    if (check==true) {
+      SetCheck(false)
+    }else{
+      SetCheck(true)
+    }
+
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        idSeguido:`${profileid}`,
+    idSeguidor:`${userid}`
+      })}
+    // Similar to componentDidMount and componentDidUpdate:
+    await fetch(`${env.SERVER.URI}/follow`,requestOptions)
+    .then(res =>{
+      if (res.status=="400"){
+      }else{}
+      return res.json();
+    }).then(
+      (result) =>{
+        if (result.msg=='Ahora sigues a esta persona') {
+          setfollowers(followers+1)
+        }else{
+          setfollowers(followers-1)
+        }
+        console.log(result)
+      }
+    )
+  }
+
+  
 
   getPosts= async()=>{
     setcargando(true)
@@ -32,7 +153,7 @@ const Profile = ({route,navigation}) => {
         'Authorization':`Bearer ${Token}`
       },
       body: JSON.stringify({
-        owner:`${userid}`
+        owner:`${profileid}`
       })}
       await fetch(`${env.SERVER.URI}/showuserposts`,requestOptions)
       .then((response) => response.json()).
@@ -55,7 +176,7 @@ const Profile = ({route,navigation}) => {
         'Authorization':`Bearer ${Token}`
       },
       body: JSON.stringify({
-        _id:`${userid}`
+        _id:`${profileid}`
       })}
       await fetch(`${env.SERVER.URI}/finduser`,requestOptions)
       .then(res =>{
@@ -75,6 +196,9 @@ const Profile = ({route,navigation}) => {
 
 useEffect(()=>{
  GetData();
+ CheckFollow();
+ GetFollowers();
+ GetFollowing();
  getPosts();
     
 },[])
@@ -99,7 +223,15 @@ useEffect(()=>{
 
     <View style={styles.userdiv}>
     <Text style={styles.username}>{username&&username}</Text>
-    <Pressable style={styles.editprofile} ><Text>Edit Profile</Text></Pressable>
+    {(userid==profileid) && <Pressable  style={styles.editprofile}>
+        <Text>Editar Perfil</Text>
+        </Pressable>}
+        {(userid!=profileid) && <Pressable onPress={()=>{Follow()}} style={styles.editprofile}>
+
+{(check==true) &&<Text>Siguiendo</Text>}
+{(check==false) &&<Text>Seguir</Text>}
+
+</Pressable>}
     </View>
 
     <View style={styles.profilefooter}>
@@ -131,11 +263,33 @@ useEffect(()=>{
 
 
         <View style={styles.posts}>
+          {(posts&&posts.length==0)&&
+          <View style={styles.noposts}>
+            <Octicons name="diff-added" size={50} color="black" />
+            <Text style={{fontSize:20,fontWeight:'bold'}}>Profile</Text>
+            <Text style={{color:'rgba(60, 60, 60, 1)'}}>When you share Photos</Text>
+            <Text style={{color:'rgba(60, 60, 60, 1)'}}>They'll appear on your profile</Text>
+            <Text onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'NewPost',
+              params: { 
+                token:Token,
+                userid:userid,},
+            });}} style={{color:'rgba(0, 149, 246, 1)'}}>Share your first photo</Text>
+            </View>}
         {posts&&posts.map((post)=>{
   // const fecha = Tweet.fecha.slice(0, 10);
 
   return(
-      <Img key={post._id} id={post._id} Token={Token}></Img>
+    <Pressable style={styles.post} onPress={()=>{navigation.navigate('Tabs', {
+      screen: 'Comments',
+      params: { 
+        token:Token,
+        userid:userid,
+        Postid:post._id,},
+    });}}>
+ <Img  key={post._id} id={post._id} Token={Token} userid={userid}></Img>
+    </Pressable>
+     
     )
 })}
 
@@ -243,7 +397,7 @@ const styles = StyleSheet.create({
       flexDirection:'row',
     },
     post:{
-      width:'33%',
+      width:'33.3%',
       height:100,
       backgroundColor:'rgba(200, 200, 200, 1)',
       alignContent:'center',
@@ -256,4 +410,12 @@ const styles = StyleSheet.create({
       width:'98%',
       height:'98%',
     },
+    noposts:{
+      width:windowWidth,
+      height:windowHeight/2,
+      justifyContent:'center',
+      alignItems:'center',
+      alignContent:'center',
+      backgroundColor:'white',
+    }
 })

@@ -11,7 +11,8 @@ import Search from "../Screens/Search";
 import Messages from "../Screens/Messages";
 import Profile from "../Screens/Profile";
 import NewPost from "../Screens/NewPost";
-
+import Comments from "../Screens/Comments";
+import Img from "../Screens/Img";
 
 const Tab = createBottomTabNavigator();
 
@@ -75,8 +76,23 @@ headerShown:false,
 
 
 
+{/* MyProfile */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token,profileid:route.params.params.userid}} options={{
+   unmountOnBlur:true,
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="person"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="MyProfile" component={Profile} />
+{/* MyProfile */}
+
 {/* Profile */}
-<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{tabBarIcon: ({focused, size}) => (
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   unmountOnBlur:true,
+   tabBarIcon: ({focused, size}) => (
        <Ionicons
           name="person"
           size={size}
@@ -84,6 +100,36 @@ headerShown:false,
        />
     )}} name="Profile" component={Profile} />
 {/* Profile */}
+
+{/* Comments */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   unmountOnBlur:true,
+   headerShown:false,
+   tabBarStyle:{display:'none'},
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="person"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="Comments" component={Comments} />
+{/* Comments */}
+
+{/* Img */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   unmountOnBlur:true,
+   headerShown:false,
+   tabBarStyle:{display:'none'},
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="person"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="Img" component={Img} />
+{/* Img */}
 
     
 

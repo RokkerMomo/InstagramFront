@@ -4,7 +4,7 @@ import React from 'react'
 const Messages = () => {
   return (
     <View>
-      <Text>Messages</Text>
+      <Text>el que lea esto es gei</Text>
     </View>
   )
 }

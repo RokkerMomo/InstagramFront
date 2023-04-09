@@ -50,7 +50,7 @@ const Img = ({id,Token}) => {
   return (
     <View key={id} style={styles.post}>
         
-   <Image style={styles.postimg} source={{uri:`${imagenes}`}} />
+   <Image key={id} style={styles.postimg} source={{uri:`${imagenes}`}} />
    {(multiple==true)&&<Ionicons style={styles.multipleimgs} name="images-outline" size={25} color="white" />}
    
    </View>
@@ -66,9 +66,8 @@ const styles = StyleSheet.create({
       height:'98%',
     },
     post:{
-      width:'33%',
-      height:125,
-      backgroundColor:'white',
+      width:'100%',
+      height:'100%',
       alignContent:'center',
       justifyContent:'center',
       alignItems:'center',

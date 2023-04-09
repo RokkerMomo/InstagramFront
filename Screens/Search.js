@@ -62,15 +62,16 @@ const Login = ({route,navigation}) => {
       ) 
   }
 
-  useEffect(()=>{
-    getPosts();
-  },[])
+  
 
 
   useEffect (()=>{
     searching();
   },[search])
 
+  useEffect(()=>{
+    getPosts();
+  },[])
 
   return (
     <SafeAreaView>
@@ -99,7 +100,16 @@ placeholder="Search"
   // const fecha = Tweet.fecha.slice(0, 10);
 
   return(
-      <Img key={post._id} id={post._id} Token={Token}></Img>
+    <Pressable key={post._id} style={styles.post} onPress={()=>{navigation.navigate('Tabs', {
+      screen: 'Comments',
+      params: { 
+        token:Token,
+        userid:userid,
+        Postid:post._id,},
+    });}}>
+<Img key={post._id} id={post._id} Token={Token}></Img>
+    </Pressable>
+      
     )
 })}
 
@@ -134,7 +144,7 @@ const styles = StyleSheet.create({
       flexDirection:'row',
     },
     post:{
-      width:'33%',
+      width:'33.3%',
       height:100,
       backgroundColor:'rgba(200, 200, 200, 1)',
       alignContent:'center',
