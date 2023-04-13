@@ -26,13 +26,12 @@ const imgs = ({id,Token}) => {
           fetch(`${env.SERVER.URI}/showPostImgs`,requestOptions)
             .then((response) => response.json()).
             then((result) =>{
-              console.log("new")
               for (let index = 0; index < result.length; index++) {
                   
                 fotos = [...fotos,result[index].uri]
                   
               }
-              console.log(fotos)
+
               setimagenes(fotos)
               
               }
@@ -82,6 +81,7 @@ const styles = StyleSheet.create({
       postimg:{
         width:windowWidth,
         height:360,
+        resizeMode:'contain'
       },
         dot:{
           height:10,

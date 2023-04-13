@@ -13,6 +13,11 @@ import Profile from "../Screens/Profile";
 import NewPost from "../Screens/NewPost";
 import Comments from "../Screens/Comments";
 import Img from "../Screens/Img";
+import NewStory from "../Screens/NewStory";
+import Story from "../Screens/Story";
+import EditProfile from "../Screens/EditProfile";
+// @ts-ignore
+import Chat from "../Screens/Chat";
 
 const Tab = createBottomTabNavigator();
 
@@ -64,7 +69,10 @@ headerShown:false,
 
 
 {/* Messages */}
-<Tab.Screen options={{tabBarIcon: ({focused, size}) => (
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   unmountOnBlur:true,
+   headerShown:false,
+   tabBarIcon: ({focused, size}) => (
        <Ionicons
           name="paper-plane"
           size={size}
@@ -72,6 +80,21 @@ headerShown:false,
        />
     )}} name="Messages" component={Messages} />
 {/* Messages */}
+
+{/* Chat */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarStyle:{display:'none'},
+   unmountOnBlur:true,
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   headerShown:false,
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="paper-plane"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="Chat" component={Chat} />
+{/* Chat */}
 
 
 
@@ -115,6 +138,50 @@ headerShown:false,
        />
     )}} name="Comments" component={Comments} />
 {/* Comments */}
+
+{/* NewStory */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   unmountOnBlur:true,
+   headerShown:false,
+   tabBarStyle:{display:'none'},
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="person"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="NewStory" component={NewStory} />
+{/* NewStory */}
+
+{/* Story */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   unmountOnBlur:true,
+   headerShown:false,
+   tabBarStyle:{display:'none'},
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="person"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="Story" component={Story} />
+{/* EditProfile */}
+
+{/* Story */}
+<Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{
+   tabBarItemStyle:{width:0,height:0, position:'absolute'},
+   unmountOnBlur:true,
+   tabBarStyle:{display:'none'},
+   tabBarIcon: ({focused, size}) => (
+       <Ionicons
+          name="person"
+          size={size}
+          color={focused ? 'black' : '#ccc'}
+       />
+    )}} name="EditProfile" component={EditProfile} />
+{/* EditProfile */}
 
 {/* Img */}
 <Tab.Screen initialParams={{userid: route.params.params.userid,Token:route.params.params.token}} options={{

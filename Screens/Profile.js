@@ -9,6 +9,7 @@ import env from "../env";
 import Spinner from 'react-native-loading-spinner-overlay';
 import Img from "./Img";
 import { Octicons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -166,6 +167,31 @@ const Profile = ({route,navigation}) => {
       ) 
   }
 
+  NewChat = async () =>{
+    setcargando(true)
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+        usuario1:`${userid}`,
+        usuario2:`${profileid}`
+      })}
+      await fetch(`${env.SERVER.URI}/newchat`,requestOptions)
+      .then((response) => response.json()).
+      then((result) =>{
+          navigation.navigate('Tabs', {
+              screen: 'Messages',
+              params: { 
+                token:Token,
+                userid:userid,},
+            })
+        }
+      ) 
+  }
 
   GetData = async ()=>{
     const requestOptions = {
@@ -223,7 +249,14 @@ useEffect(()=>{
 
     <View style={styles.userdiv}>
     <Text style={styles.username}>{username&&username}</Text>
-    {(userid==profileid) && <Pressable  style={styles.editprofile}>
+    <View style={{flexWrap:'wrap',flexDirection:'row'}}>
+    {(userid==profileid) && <Pressable onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'EditProfile',
+              params: { 
+                token:Token,
+                userid:userid,
+              profileid:profileid},
+            });}} style={styles.editprofile}>
         <Text>Editar Perfil</Text>
         </Pressable>}
         {(userid!=profileid) && <Pressable onPress={()=>{Follow()}} style={styles.editprofile}>
@@ -232,6 +265,16 @@ useEffect(()=>{
 {(check==false) &&<Text>Seguir</Text>}
 
 </Pressable>}
+
+{(userid!=profileid) && <Pressable onPress={()=>{NewChat()}}>
+
+<Ionicons name="paper-plane" size={24} color="black" />
+
+</Pressable>}
+    </View>
+    
+
+
     </View>
 
     <View style={styles.profilefooter}>
@@ -353,7 +396,7 @@ const styles = StyleSheet.create({
       margin:10
     },
     editprofile:{
-      width:180,
+      width:150,
       height:30,
       backgroundColor:'rgba(239, 239, 239, 1)',
       borderRadius:10,
@@ -361,6 +404,7 @@ const styles = StyleSheet.create({
       justifyContent:'center',
       alignItems:'center',
       alignContent:'center',
+      marginRight:15
       
     },
     profilefooter:{

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Image, View, Platform,StyleSheet, SafeAreaView, TextInput,Pressable, FlatList,Text, ScrollView,StatusBar,Alert  } from 'react-native';
+import { Button, Image, View, Platform,StyleSheet, SafeAreaView, TextInput,Pressable, FlatList,Text, ScrollView,StatusBar } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import {Dimensions} from 'react-native';
@@ -11,7 +11,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 
-const NewPost = ({route,navigation}) => {
+const NewStory = ({route,navigation}) => {
 
     const [image, setImage] = useState(null);
     const [imagenes,setimagenes] =useState([]);
@@ -19,14 +19,8 @@ const NewPost = ({route,navigation}) => {
     const [user,setuser] = useState('')
     const [descripcion,setdescipcion] = useState('')
     const [fotoperfil,setfotoperfil] = useState('')
-    const [postid,setpostid] = useState('')
+    const [Storyid,setStoryid] = useState('')
     const [cargando,setcargando] =useState(false)
-    const [contador,setcontador] = useState(0)
-
-    const createTwoButtonAlert = () =>
-    Alert.alert('Alerta!', `Has alcanzado el Limite de imagenes por Post`, [
-      {text: 'OK', onPress: () => console.log('OK Pressed')},
-    ]);
 
     const {userid,Token} = route.params;
 
@@ -45,74 +39,26 @@ const NewPost = ({route,navigation}) => {
         // console.log(result)
         // console.log(result.assets[0])
         if (!result.canceled) {
-          if (contador<=9) {
-            for (let index = 0; index < result.assets.length; index++) {
+          for (let index = 0; index < result.assets.length; index++) {
    
-              console.log(result.assets[index].uri)
-              setimagenes([...imagenes,result.assets[index].uri]);
-              // setimagenes([...imagenes,result.assets[index]]);
-              
-            }
-            setcontador(contador+1)
-          }else{
-            createTwoButtonAlert();
+            console.log(result.assets[index].uri)
+            setimagenes([result.assets[index].uri]);
+            // setimagenes([...imagenes,result.assets[index]]);
+            
           }
-          
           
           // console.log(imagenes)
         }
       };
-
-      uploadimgs = async() =>{
-        for (let index = 0; index < imagenes.length; index++) {
-
-
-          const response = await fetch(imagenes[index])
-          const blob = await response.blob();
-          const filename = imagenes[index].substring(imagenes[index].lastIndexOf('/')+1);
-          const result = await UploadFile(blob,filename)
-          console.log(result)
-  
-          const requestOptions = {
-            method: 'POST',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
-              'Authorization':`Bearer ${Token}`
-            },
-            body: JSON.stringify({
-              postid:`${postid}`,
-              uri:`${result}`,
-              
-            })}
-            await fetch(`${env.SERVER.URI}/newimg`,requestOptions)
-            .then(res =>{
-              console.log(res.status);
-              if (res.status=="400"){
-              }else{}
-              return res.json();
-            }).then(
-              (result) =>{
-                console.log(result)
-              }
-            )
-          }
-  
-  
-          setcargando(false);
-          navigation.navigate('Home', {
-            screen: 'Home',
-            params: { 
-              token:Token,
-              userid:userid,},
-          });
-      }
-
-
       upload = async () =>{
         setcargando(true);
+          const response = await fetch(imagenes[0])
+          const blob = await response.blob();
+          const filename = imagenes[0].substring(imagenes[0].lastIndexOf('/')+1);
+          const result = await UploadFile(blob,filename)
+          console.log(result)
         const requestOptions = {
-          method: 'POST',
+          method: 'Post',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -124,10 +70,11 @@ const NewPost = ({route,navigation}) => {
             owner:`${userid}`,
             descripcion:`${descripcion}`,
             fotoperfil:`${fotoperfil}`,
+            foto:`${result}`,
             fecha:`${date}`,
             
           })}
-          await fetch(`${env.SERVER.URI}/newpost`,requestOptions)
+          await fetch(`${env.SERVER.URI}/neworupdatestory`,requestOptions)
           .then(res =>{
             console.log(res.status);
             if (res.status=="400"){
@@ -135,8 +82,14 @@ const NewPost = ({route,navigation}) => {
             return res.json();
           }).then(
             (result) =>{
-              setpostid(result._id)
-              uploadimgs();
+              console.log(result)
+              setcargando(false)
+              navigation.navigate('Home', {
+                screen: 'Home',
+                params: { 
+                  token:Token,
+                  userid:userid,},
+              });
             }
           )
 
@@ -148,7 +101,7 @@ const NewPost = ({route,navigation}) => {
 
       GetData = async ()=>{
         const requestOptions = {
-          method: 'POST',
+          method: 'Post',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
@@ -184,7 +137,7 @@ const NewPost = ({route,navigation}) => {
         
       </ScrollView>
       <View style={styles.header}>
-        <Text style={{width:'90%',textAlign:'center'}}>New Post</Text>
+        <Text style={{width:'90%',textAlign:'center'}}>New Story</Text>
         <Pressable onPress={()=>(upload())}><Ionicons name="checkmark" size={24} color="rgba(77, 181, 249, 1)" /></Pressable>
         
       </View>
@@ -197,7 +150,7 @@ const NewPost = ({route,navigation}) => {
         />
 
       
-        <View style={styles.NewPost}>
+        <View style={styles.NewStory}>
 
         <Pressable onPress={pickImage} style={styles.agregarfoto}>
         {/* {image && <Image source={{ uri: image }} style={{ width: 100, height: 100, position:'absolute', borderRadius:10 }} />} */}
@@ -223,8 +176,8 @@ const NewPost = ({route,navigation}) => {
     pagingEnabled
     snapToAlignment="center"
     renderItem={ ({ item }) => (
-      <View style={styles.postimgcontainer}> 
-    <Image style={styles.postimg} source={{uri:item}}/>
+      <View style={styles.Storyimgcontainer}> 
+    <Image style={styles.Storyimg} source={{uri:item}}/>
     </View>
     )}
   />
@@ -241,7 +194,7 @@ const NewPost = ({route,navigation}) => {
   
 }
 
-export default NewPost
+export default NewStory
 
 const styles = StyleSheet.create({
   body:{
@@ -250,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
 
   },
-  NewPost:{
+  NewStory:{
     width:windowWidth,
     flexWrap:'wrap',
     flexDirection:'row',
@@ -268,11 +221,11 @@ const styles = StyleSheet.create({
       marginBottom:'5%',
       marginTop:'5%'
   },
-  postimgcontainer:{
+  Storyimgcontainer:{
     width:windowWidth,
     height:360,
   },
-  postimg:{
+  Storyimg:{
     width:windowWidth,
     height:360,
   },

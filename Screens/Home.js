@@ -19,8 +19,28 @@ const Home = ({route,navigation}) => {
   const [text, setText] = useState('');
   const [posts,setposts] = useState(null)
   const [cargando,setcargando] =useState(false)
+  const [storys,setstorys] = useState(null)
   const hasUnsavedChanges = Boolean(true);
   const {userid,Token} = route.params;
+
+  getstorys = async()=>{
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization':`Bearer ${Token}`
+      },
+      body: JSON.stringify({
+      })}
+      await fetch(`${env.SERVER.URI}/showstorys`,requestOptions)
+  .then((response) => response.json())
+  .then((data) =>{
+    setstorys(data)
+    console.log(storys)
+    setcargando(false)
+  } );
+  }
 
   
   getPosts= async()=>{
@@ -62,6 +82,7 @@ const Home = ({route,navigation}) => {
 
   useEffect(()=>{
     getPosts();
+    getstorys();
   },[])
 
   
@@ -81,12 +102,33 @@ const Home = ({route,navigation}) => {
       <ScrollView>
 
 <View style={styles.Storys}>
-  <View style={styles.MyStory}>
-    <View style={styles.avatar}>
-    <Image style={styles.avatarimg} source={require('../assets/avatarsample.png')} />
+  <Pressable onPress={()=>{navigation.navigate('Tabs', {
+              screen: 'NewStory',
+              params: { 
+                token:Token,
+                userid:userid,},
+            });}} style={styles.MyStory}>
+    <View  style={styles.avatar}>
+    <Ionicons name="add-outline" size={30} color="black" />
     </View>
-    <Text style={styles.TextMyStory}>Your Story</Text>
-  </View>
+    <Text style={styles.TextMyStory}>New Story</Text>
+  </Pressable>
+    {storys&&storys.map((story)=>{
+      return (
+        <Pressable onPress={()=>{navigation.navigate('Tabs', {
+          screen: 'Story',
+          params: { 
+            foto:story.foto,
+            descripcion:story.descripcion
+          },
+        });}} style={styles.MyStory}>
+<View  style={styles.avatar}>
+<Image style={styles.avatarimg} source={{uri:`${story.fotoperfil}`}} />
+</View>
+<Text style={styles.TextMyStory}>{story.owneruser}</Text>
+</Pressable>
+      )
+    })}
 </View>
 
 <Spinner
@@ -194,6 +236,8 @@ const styles = StyleSheet.create({
       borderLeftColor:"white",
       borderWidth:1,
       marginTop:0,
+      flexWrap:'wrap',
+      flexDirection:'column'
     },
     MyStory:{
       width:45,
@@ -208,6 +252,9 @@ const styles = StyleSheet.create({
       height:45,
       backgroundColor:'white',
       borderRadius:100,
+      justifyContent:'center',
+      alignContent:'center',
+      alignItems:'center',
     },
     avatarimg:{
       width:45,
@@ -215,7 +262,9 @@ const styles = StyleSheet.create({
       borderRadius:100,
     },
     TextMyStory:{
-      fontSize:9
+      fontSize:9,
+      width:55,
+      textAlign:'center'
     },
     post:{
       width:windowWidth,
