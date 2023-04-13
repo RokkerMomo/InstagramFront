@@ -1,6 +1,6 @@
 export default {
     SERVER:{
-        URI: "http://192.168.1.104:3000",
+        URI: "https://instagramback-production.up.railway.app",
     }
 }
 //railway

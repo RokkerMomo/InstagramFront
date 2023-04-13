@@ -11,7 +11,7 @@ const windowHeight = Dimensions.get('window').height;
 
 
 import io from "socket.io-client";
-const socket = io("http://192.168.1.104:4000")
+const socket = io(`https://instagramback-production.up.railway.app`)
 
 const Chat = ({route,navigation}) => {
 const [mensajes,setmensajes] = useState(null)
